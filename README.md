@@ -1,5 +1,5 @@
 # My KeePass
-A KeePass password manager plugin for [Bitbar](https://github.com/matryer/bitbar) that I created to have the passwords easily accessible from the menu bar.
+A KeePass password manager plugin for [BitBar](https://github.com/matryer/bitbar) that I created to have the passwords easily accessible from the menu bar.
 
 ## Features
 - List of entries showing, title, user, password, url, and notes.
@@ -13,13 +13,14 @@ A KeePass password manager plugin for [Bitbar](https://github.com/matryer/bitbar
 
 ## Requirements
 - Python 3.x
-- Pip3
+- pip3
 - Module: pykeepass
 
 ## Installation
-- Copy the script to your Bitbar folder.
-- Set executable: chmod +x mykeepass.5m.py
-- Install dependencies: pip3 install pykeepass
+- Copy the script to your BitBar folder.
+- Make sure it's executable (in Terminal, do `chmod +x plugin.sh`)
+- Install dependencies (in Terminal, do `pip3 install pykeepass`)
+- Then choose `Refresh all` from the BitBar menus
 
 ## Feedback and help
 - Carlos E. Torres
