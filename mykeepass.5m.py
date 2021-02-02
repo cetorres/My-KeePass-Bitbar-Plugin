@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env LC_ALL=en_US.UTF-8 python3
 # -*- coding: UTF-8 -*-
 # <bitbar.title>My KeePass</bitbar.title>
 # <bitbar.version>v1.0</bitbar.version>
@@ -9,14 +9,17 @@
 
 # Install
 # Before using, please install the dependencies needed for this script.
-# pip install pykeepass
+# pip3 install pykeepass
 
 import os
 import subprocess
 import sys
 import json
 import base64
-from pykeepass import PyKeePass
+try:
+    from pykeepass import PyKeePass
+except ImportError:
+	print('You need to "pip3 install pykeepass"')
 
 # Global vars
 config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.mykeepass.cfg')
@@ -71,7 +74,9 @@ def createEntriesList(entries):
             dots = ''
             if len(entry.url) > 30:
                 dots = '...'
-            print('--URL: ' + entry.url[:30] + dots + '| terminal=false bash=' + sys.argv[0] + ' param1=copy param2=' + encode_base64(entry.url.strip()) + ' terminal=false' + '\n')
+            print('--URL: ' + entry.url[:30] + dots + '\n')
+            print('----Open | href=' + entry.url.strip() + ' \n')
+            print('----Copy | terminal=false bash=' + sys.argv[0] + ' param1=copy param2=' + encode_base64(entry.url.strip()) + ' terminal=false \n')
         if entry.notes:
             print('-----')
             print('--Notes:\n')
@@ -99,6 +104,22 @@ def prompt(text='', defaultAnswer='', icon='note', title='', buttons=('Cancel', 
             }})
             response.textReturned
         '''.format(**d)]).rstrip().decode()        
+    except subprocess.CalledProcessError:
+        pass
+
+def prompt_for_file(text='Please select a database file:'):   
+    try:
+        d = locals()
+        res = subprocess.check_output(['osascript', '-e', '(choose file with prompt "{text}") as string'.format(**d)]).rstrip().decode()
+        # Clean file path
+        result = res.replace(':','/')
+        parts = result.split('/')
+        first_part = parts[0]
+        first_part = first_part.replace(' ', '')
+        parts[0] = first_part
+        result = '/'.join(parts)
+        result = '/Volumes/' + result
+        return result
     except subprocess.CalledProcessError:
         pass
 
@@ -136,8 +157,8 @@ def delete_password(title, username):
             alert('Entry deleted successfully.', 'Delete Entry')
 
 def set_config(is_change=False):
-    try:
-        path = prompt('Enter KeePass database path (.kdbx)', config['dbFile'], title='My KeePass Settings')
+    try:        
+        path = prompt_for_file('Enter KeePass database file (.kdbx)')        
         if path != '':        
             passwd = prompt('Enter the database password', title='My KeePass Settings', hidden=True)
             if passwd != '':
@@ -170,7 +191,7 @@ def print_enter_settings():
     print_icon()
     print('My KeePass\n')
     print('Please enter the application settings.\n')
-    print('⚙︎ Show Settings | terminal=false bash=' + sys.argv[0] + ' param1=show_settings refresh=true terminal=false' + '\n')    
+    print('⚙︎ Show Settings | terminal=false bash=' + sys.argv[0] + ' param1=show_settings refresh=true terminal=false' + '\n')   
 
 def init_database():
     global kp
@@ -184,6 +205,10 @@ def print_options():
     print(show_pass_icon + ' Show Passwords | terminal=false bash=' + sys.argv[0] + ' param1=show_pass refresh=true terminal=false' + '\n')
     print('⚙︎ Change Settings | terminal=false bash=' + sys.argv[0] + ' param1=change_settings refresh=true terminal=false' + '\n')
 
+def print_error(text):
+    print('---')
+    print(text)
+
 # Read config file
 read_config = read_config_file()
 if not read_config and len(sys.argv) == 1:
@@ -196,8 +221,7 @@ if read_config and len(sys.argv) == 1:
         init_database()
     except:        
         print_enter_settings()
-        print('---')
-        print('Error: Could not open the database. Please review the settings and try again.')
+        print_error('Error: Could not open the database. Please review the settings and try again.')
         quit()
 
 # Check params
@@ -228,7 +252,12 @@ if len(sys.argv) > 1:
         quit()
 
 # Load database
-entries = kp.entries
+try:
+    entries = kp.entries
+except:
+    print_enter_settings()
+    print_error('Error: Could not open the database. Please review the settings and try again.')
+    quit()  
 
 # Menu
 print_icon()
