@@ -5,7 +5,7 @@
 # <bitbar.author>Carlos Torres</bitbar.author>
 # <bitbar.author.github>cetorres</bitbar.author.github>
 # <bitbar.desc>KeePass password manager.</bitbar.desc>
-# <bitbar.dependencies>python</bitbar.dependencies>
+# <bitbar.dependencies>python3,pykeepass</bitbar.dependencies>
 
 # Install
 # Before using, please install the dependencies needed for this script.
